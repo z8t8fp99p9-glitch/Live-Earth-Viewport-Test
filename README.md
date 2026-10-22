@@ -1,26 +1,24 @@
-# LIVE // EARTH — Viewport Test v4 (isolated)
+# LIVE // EARTH — Isolated iOS Viewport Test v5
 
-This is a diagnostic page only. It is NOT the LIVE // EARTH app and does not access location or user storage.
+This is a test-only HTML page. It does not include the LIVE // EARTH app, a service worker, geolocation calls, database logic, or local recovery code.
 
-## What changed
-- Keeps `viewport-fit=cover`, iOS standalone mode, and `apple-mobile-web-app-status-bar-style=black-translucent` in the HTML head.
-- Runs the same repeated viewport rechecks after rotation/page-show.
-- Adds a button: **TRY EXTRA BOTTOM BACKGROUND FILL**. Turn it ON to test whether painting an oversized decorative background can cover the measured `screen.height - window.innerHeight` strip. It does not move the diagnostic panel or the five illustrative orbs.
-
-## Apply this only to the separate test repository
-Repository: `z8t8fp99p9-glitch/Live-Earth-Viewport-Test`
-Replace only `index.html` with `LIVE-EARTH-Viewport-Test-index-v4.html`. Leave the live `z8t8fp99p9-glitch/Live-Earth` repository untouched.
-
-After the test repository publishes, remove only the old **test icon** from the Home Screen and add the test page again using Safari → Share → Add to Home Screen. The status-bar meta configuration can be captured at installation, so a newly installed test icon is needed for a fair comparison. Do NOT delete any LIVE // EARTH icons or clear browser/site data.
+## Update the existing test repository
+Replace **only `index.html`** in `z8t8fp99p9-glitch/Live-Earth-Viewport-Test` with this file. Leave `README.md`, `manifest.webmanifest`, `icon.png`, and `icon.svg` unchanged. Do not upload anything to `z8t8fp99p9-glitch/Live-Earth`.
 
 ## Test
-1. Open the new test icon.
-2. Record the diagnostic readings with the toggle OFF.
-3. Tap **TRY EXTRA BOTTOM BACKGROUND FILL: OFF** to turn it ON.
-4. Look at the black bottom strip; screenshot both the readings and the page.
-5. Rotate once and return to portrait, then see whether the result holds.
+1. Commit the replacement in the separate test repo and wait for GitHub Pages to update.
+2. Delete only the isolated viewport-test Home Screen icon, then install it again from Safari using Share → Add to Home Screen. Do not delete any LIVE // EARTH shortcut.
+3. In portrait, screenshot measurements with both controls OFF.
+4. Tap **STAGE HEIGHT: 100%** to switch to `100dvh`, wait a second, and screenshot.
+5. Tap **ROOT PAINT PROBE: NEON ON**. This temporarily colors the HTML/body background bright magenta. Observe whether the bottom black strip changes color. Tap again to restore normal color.
+6. Rotate to landscape and back to portrait. Wait one second and take a final screenshot.
 
-If the strip remains black with the background overdraw ON, this is evidence the strip is outside the page's drawable viewport; do not copy the experiment into the production app.
+## Interpretation
+- If the 100dvh control changes the measured stage height or fills more screen, that approach may help within the page viewport.
+- If the neon root-paint probe does not color the bottom strip, that is evidence the strip is outside the part of the screen the webpage can paint. A PWA cannot place interactive content into a region withheld by iOS/WebKit.
+- If the strip changes to magenta, the system is painting some page background there, and we can evaluate whether a matching color can cosmetically blend it. This is diagnostic only, not a production design.
 
-Suggested commit title for the separate test repository only:
-`Test iOS bottom background overdraw`
+## Guardrails
+Keep the live `Live-Earth` repository and v75 build untouched. Do not clear site data, reset storage, or delete real app shortcuts. User manually uploads and commits; no commits or deployments are made by the assistant.
+
+Suggested commit title for the separate test repo only: `Compare iOS viewport height and root painting`
