@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#050813">
 <meta name="color-scheme" content="dark">
-<title>LIVE // EARTH — Viewport Test v5</title>
+<title>LIVE // EARTH — Viewport Test v6</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.png">
@@ -54,13 +54,13 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
     <path fill="#202b45" d="M0 510 L95 575 L180 450 L275 585 L365 495 L470 610 L565 455 L665 570 L750 505 L800 545 V900 H0Z"/>
     <path fill="#0b1427" d="M0 665 L100 705 L190 635 L285 740 L390 660 L475 745 L565 625 L670 720 L765 650 L800 670 V900 H0Z"/>
   </svg>
-  <div class="topline"><div class="brand">LIVE <span>//</span> EARTH</div><div class="pill">FULL-SCREEN TEST V5</div></div>
+  <div class="topline"><div class="brand">LIVE <span>//</span> EARTH</div><div class="pill">FULL-SCREEN TEST V6</div></div>
   <div class="probe">
-    <strong>VIEWPORT HEIGHT + ROOT PAINT TEST · ORIGINAL META ENABLED</strong>
+    <strong>VIEWPORT HEIGHT + MATCHED BACKGROUND BLEED TEST · ORIGINAL META ENABLED</strong>
     <div id="readings">Measuring viewport…</div>
     <div class="controls">
       <button id="dvh-toggle" type="button" aria-pressed="false">STAGE HEIGHT: 100%</button>
-      <button id="paint-toggle" type="button" aria-pressed="false">ROOT PAINT PROBE: OFF</button>
+      <button id="paint-toggle" type="button" aria-pressed="false">MATCH SKY BACKGROUND: OFF</button>
     </div>
   </div>
   <div class="nav" aria-label="Illustrative five-orb layout">
@@ -70,7 +70,7 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
     <div class="item"><div class="orb"><b>⌖</b></div><span>LOCATION</span></div>
     <div class="item"><div class="orb"><b>▱</b></div><span>STACKS</span></div>
   </div>
-  <div class="footnote">TEST ONLY · NOT THE LIVE APP · NO LOCATION OR STORAGE ACCESS</div>
+  <div class="footnote">TEST ONLY · NOT THE LIVE APP · NO LOCATION OR STORAGE ACCESS · MATCHED BACKGROUND EXPERIMENT</div>
 </div>
 <div id="dvh-probe" aria-hidden="true"></div>
 <script>
@@ -82,6 +82,7 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
   const paintToggle = document.getElementById('paint-toggle');
   let dvhMode = false;
   let rootPaintProbe = false;
+  const skyGradient = 'linear-gradient(180deg,#111b39 0%,#32243e 23%,#a35a65 43%,#f4a14c 57%,#ef792e 66%,#5d334f 78%,#10182d 91%,#050813 100%)';
   let recoveryTimers = [];
   let recoveryLabel = 'initial measurement';
   let lastEvent = 'page load';
@@ -107,7 +108,7 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
       `documentElement: ${root.clientWidth} × ${root.clientHeight}px · stage: ${px(stageRect.width)} × ${px(stageRect.height)}`,
       `100dvh probe: ${px(dvhProbe.getBoundingClientRect().height)} · safe areas top/bottom: ${px(top)} / ${px(bottom)}`,
       `DPR: ${window.devicePixelRatio} · standalone: ${standalone ? 'yes' : 'no'}`,
-      `stage mode: ${dvhMode ? '100dvh' : '100%'} · root paint: ${rootPaintProbe ? 'NEON ON' : 'normal'} · recovery: ${recoveryLabel} (${lastEvent})`
+      `stage mode: ${dvhMode ? '100dvh' : '100%'} · matched background bleed: ${rootPaintProbe ? 'ON' : 'OFF'} · recovery: ${recoveryLabel} (${lastEvent})`
     ].join('\n');
   }
   function scheduleSync(eventName) {
@@ -141,12 +142,12 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
   });
   paintToggle.addEventListener('click', () => {
     rootPaintProbe = !rootPaintProbe;
-    const color = rootPaintProbe ? '#ff00d4' : '#050813';
-    document.documentElement.style.background = color;
-    document.body.style.background = color;
+    const background = rootPaintProbe ? skyGradient : '#050813';
+    document.documentElement.style.background = background;
+    document.body.style.background = background;
     paintToggle.setAttribute('aria-pressed', String(rootPaintProbe));
-    paintToggle.textContent = `ROOT PAINT PROBE: ${rootPaintProbe ? 'NEON ON' : 'OFF'}`;
-    recoveryLabel = 'manual root paint test';
+    paintToggle.textContent = `MATCH SKY BACKGROUND: ${rootPaintProbe ? 'ON' : 'OFF'}`;
+    recoveryLabel = 'manual matched-background test';
     update();
   });
   update();
