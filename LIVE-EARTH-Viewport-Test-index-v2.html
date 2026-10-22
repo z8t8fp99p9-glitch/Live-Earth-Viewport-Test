@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<!-- Deliberately OMIT apple-mobile-web-app-status-bar-style for this isolated test. -->
+<meta name="theme-color" content="#090b18">
+<meta name="color-scheme" content="dark">
+<title>LIVE // EARTH — Viewport Test</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.png">
+<style>
+:root { color-scheme:dark; background:#050813; color:#f3f8ff; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+* { box-sizing:border-box; }
+html,body { width:100%; height:100%; margin:0; overflow:hidden; overscroll-behavior:none; }
+body { position:fixed; inset:0; padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); background:#050813; }
+#stage { position:fixed; inset:0; width:var(--test-viewport-width,100%); height:var(--test-viewport-height,100%); overflow:hidden; background:#050813; isolation:isolate; }
+.sky { position:absolute; inset:0; z-index:-2; background:linear-gradient(180deg,#111b39 0%,#32243e 23%,#a35a65 43%,#f4a14c 57%,#ef792e 66%,#5d334f 78%,#10182d 91%,#050813 100%); }
+.sun { position:absolute; left:50%; top:48%; width:45vw; max-width:230px; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle,#fff7c8 0%,#ffdb7c 17%,#ffac4e 38%,rgba(255,137,63,.16) 68%,transparent 72%); filter:blur(2px); }
+.mountains { position:absolute; inset:25% 0 0; width:100%; height:65%; }
+.mountains path { stroke:none; }
+.topline { position:absolute; top:calc(env(safe-area-inset-top) + 14px); left:18px; right:18px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.brand { font-size:13px; font-weight:800; letter-spacing:.2em; text-shadow:0 1px 8px #0008; }
+.brand span { color:#75d9ff; }
+.pill { border:1px solid #d7e7ff55; background:#09132180; backdrop-filter:blur(8px); border-radius:999px; padding:7px 10px; font-size:9px; letter-spacing:.12em; }
+.probe { position:absolute; left:14px; right:14px; top:calc(env(safe-area-inset-top) + 52px); margin:auto; width:min(94%,460px); border:1px solid #dcecff45; background:#07101dcc; box-shadow:0 8px 30px #0004; border-radius:12px; padding:10px 12px; color:#eff7ff; font-size:10px; line-height:1.45; backdrop-filter:blur(10px); }
+.probe strong { display:block; font-size:11px; letter-spacing:.08em; margin-bottom:4px; }
+#readings { white-space:pre-line; color:#d3e3f6; font-variant-numeric:tabular-nums; }
+.nav { position:absolute; left:50%; bottom:calc(env(safe-area-inset-bottom) + 38px); transform:translateX(-50%); width:min(94vw,520px); display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:end; gap:clamp(2px,1.2vw,9px); }
+.item { min-width:0; display:flex; flex-direction:column; align-items:center; gap:6px; font:600 clamp(8px,2.4vw,11px)/1.1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; letter-spacing:.14em; color:#e4efff; text-shadow:0 1px 7px #000; }
+.orb { display:grid; place-items:center; width:clamp(48px,14vw,74px); aspect-ratio:1; border-radius:50%; border:1px solid #e8f7ff99; background:radial-gradient(circle at 30% 25%,#fff9 0%,#7ddaff66 16%,#152744 37%,#060c18 70%,#66cfff88 74%,#050813 81%); box-shadow:inset 0 0 7px #fff5,0 0 9px #9ce7ff80,0 5px 12px #0009; }
+.orb b { font-size:clamp(20px,6vw,31px); font-weight:500; text-shadow:0 0 8px #a9e6ff; }
+.item:nth-child(2) .orb { background:radial-gradient(circle at 32% 26%,#fff 0%,#c7d7ed 17%,#34445e 39%,#060b18 69%,#b9e5ff 74%,#060b18 81%); }
+.item:nth-child(3) .orb { background:radial-gradient(circle,#fff5b6 0%,#ffb344 21%,#f05b19 40%,#230e19 61%,#ffcc79 70%,#1b0b18 80%); box-shadow:0 0 16px #ff9b3e99,inset 0 0 8px #fff6; }
+.item:nth-child(4) .orb { background:radial-gradient(circle at 50% 47%,#6b0719 0%,#f43d62 19%,#340b23 42%,#060b18 67%,#ff708c 73%,#060b18 81%); }
+.item:nth-child(5) .orb { background:radial-gradient(circle at 50% 43%,#b4fff6 0%,#35c8d5 14%,#173d68 36%,#060b18 64%,#a1faff 72%,#060b18 81%); }
+.footnote { position:absolute; left:12px; right:12px; bottom:calc(env(safe-area-inset-bottom) + 8px); text-align:center; color:#f4f7ffb0; font-size:9px; letter-spacing:.08em; }
+@media (min-width:600px) { .nav { bottom:calc(env(safe-area-inset-bottom) + 36px); gap:10px; } .orb { width:clamp(68px,8vw,88px); } .probe { font-size:12px; } }
+</style>
+</head>
+<body>
+<div id="stage" aria-label="Isolated viewport test scene">
+  <div class="sky"></div>
+  <div class="sun"></div>
+  <svg class="mountains" viewBox="0 0 800 900" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#c15d70" d="M0 260 L90 300 L190 205 L270 290 L355 170 L430 300 L520 210 L610 310 L700 165 L800 270 V900 H0Z"/>
+    <path fill="#67344f" d="M0 365 L80 420 L170 315 L260 415 L365 330 L455 435 L555 300 L645 415 L730 350 L800 400 V900 H0Z"/>
+    <path fill="#202b45" d="M0 510 L95 575 L180 450 L275 585 L365 495 L470 610 L565 455 L665 570 L750 505 L800 545 V900 H0Z"/>
+    <path fill="#0b1427" d="M0 665 L100 705 L190 635 L285 740 L390 660 L475 745 L565 625 L670 720 L765 650 L800 670 V900 H0Z"/>
+  </svg>
+  <div class="topline"><div class="brand">LIVE <span>//</span> EARTH</div><div class="pill">ISOLATED VIEWPORT TEST</div></div>
+  <div class="probe"><strong>VIEWPORT RECOVERY TEST · STATUS BAR META OMITTED</strong><div id="readings">Measuring viewport…</div></div>
+  <div class="nav" aria-label="Illustrative five-orb layout">
+    <div class="item"><div class="orb"><b>🌍</b></div><span>EARTH</span></div>
+    <div class="item"><div class="orb"><b>☾</b></div><span>MOON</span></div>
+    <div class="item"><div class="orb"><b>☼</b></div><span>SUN</span></div>
+    <div class="item"><div class="orb"><b>⌖</b></div><span>LOCATION</span></div>
+    <div class="item"><div class="orb"><b>▱</b></div><span>STACKS</span></div>
+  </div>
+  <div class="footnote">TEST ONLY · NOT THE LIVE APP · NO LOCATION OR STORAGE ACCESS</div>
+</div>
+<script>
+(() => {
+  const output = document.getElementById('readings');
+  const topProbe = document.createElement('div');
+  const bottomProbe = document.createElement('div');
+  for (const [el, edge] of [[topProbe, 'top'], [bottomProbe, 'bottom']]) {
+    el.style.cssText = `position:fixed;${edge}:0;width:0;height:0;padding-${edge}:env(safe-area-inset-${edge});visibility:hidden;pointer-events:none;`;
+    document.body.appendChild(el);
+  }
+  function px(value) { return `${Math.round(value * 10) / 10}px`; }
+  let frame = 0;
+  let recoveryTimers = [];
+  let recoveryLabel = 'Initial measurement';
+  let lastEvent = 'page load';
+
+  function update() {
+    const vv = window.visualViewport;
+    const root = document.documentElement;
+    const top = parseFloat(getComputedStyle(topProbe).paddingTop) || 0;
+    const bottom = parseFloat(getComputedStyle(bottomProbe).paddingBottom) || 0;
+    const height = Math.max(240, Math.round(vv?.height || window.innerHeight || root.clientHeight));
+    const width = Math.max(240, Math.round(vv?.width || window.innerWidth || root.clientWidth));
+    // Mirror the accepted LIVE // EARTH recovery strategy: refresh measured viewport
+    // dimensions and force layout reads without applying an offset compensation.
+    root.style.setProperty('--test-viewport-height', `${height}px`);
+    root.style.setProperty('--test-viewport-width', `${width}px`);
+    void document.getElementById('stage').getBoundingClientRect();
+    output.textContent = [
+      `window.innerHeight: ${window.innerHeight}px · innerWidth: ${window.innerWidth}px`,
+      `visualViewport: ${vv ? `${px(vv.width)} × ${px(vv.height)}` : 'unavailable'} · offsetTop: ${vv ? px(vv.offsetTop) : '—'}`,
+      `documentElement: ${root.clientWidth} × ${root.clientHeight}px`,
+      `safe-area top / bottom: ${px(top)} / ${px(bottom)}`,
+      `devicePixelRatio: ${window.devicePixelRatio}`,
+      `recovery: ${recoveryLabel} · trigger: ${lastEvent}`
+    ].join('\n');
+  }
+
+  function scheduleSync() {
+    if (frame) cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => { frame = 0; update(); });
+  }
+
+  function settleAfterTransition(eventName) {
+    recoveryTimers.forEach(timer => clearTimeout(timer));
+    recoveryTimers = [];
+    lastEvent = eventName;
+    recoveryLabel = 'immediate';
+    scheduleSync();
+    for (const delay of [180, 420, 800]) {
+      recoveryTimers.push(setTimeout(() => {
+        // Match the existing accepted workaround: clear stale scroll only after
+        // orientation/pageshow transitions, then remeasure; never offset artwork.
+        try { window.scrollTo(0, 0); } catch (_) {}
+        if (document.documentElement.scrollTop) document.documentElement.scrollTop = 0;
+        if (document.body.scrollTop) document.body.scrollTop = 0;
+        recoveryLabel = `${delay}ms recheck`;
+        scheduleSync();
+      }, delay));
+    }
+  }
+
+  update();
+  window.addEventListener('resize', () => { lastEvent = 'resize'; scheduleSync(); }, {passive:true});
+  window.visualViewport?.addEventListener('resize', () => { lastEvent = 'visualViewport resize'; scheduleSync(); }, {passive:true});
+  window.addEventListener('orientationchange', () => settleAfterTransition('orientationchange'), {passive:true});
+  window.addEventListener('pageshow', () => settleAfterTransition('pageshow'), {passive:true});
+})();
+</script>
+</body>
+</html>
