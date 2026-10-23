@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#050813">
 <meta name="color-scheme" content="dark">
-<title>LIVE // EARTH — Viewport Test v6</title>
+<title>LIVE // EARTH — Viewport Test v7</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.png">
@@ -42,6 +42,11 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
 .item:nth-child(5) .orb { background:radial-gradient(circle at 50% 43%,#b4fff6 0%,#35c8d5 14%,#173d68 36%,#060b18 64%,#a1faff 72%,#060b18 81%); }
 .footnote { position:absolute; z-index:5; left:12px; right:12px; bottom:calc(env(safe-area-inset-bottom) + 8px); text-align:center; color:#f4f7ffb0; font-size:9px; letter-spacing:.08em; }
 #dvh-probe { position:fixed; inset:auto auto auto -10000px; width:1px; height:100dvh; visibility:hidden; pointer-events:none; }
+/* Experimental comparison: ordinary scrollable document/root, while the scene keeps its measured viewport height. */
+html.github-flow, html.github-flow body { height:auto !important; min-height:calc(100dvh + var(--estimated-screen-gap, 0px)); overflow-x:hidden !important; overflow-y:auto !important; }
+html.github-flow body { position:relative !important; inset:auto !important; }
+html.github-flow #stage { position:relative !important; inset:auto !important; width:100% !important; height:var(--test-flow-stage-height,100dvh) !important; min-height:0 !important; }
+#flow-toggle { grid-column:1 / -1; }
 @media (min-width:600px) { .nav { bottom:calc(env(safe-area-inset-bottom) + 36px); gap:10px; } .orb { width:clamp(68px,8vw,88px); } .probe { font-size:12px; } .probe strong {font-size:12px;} .controls button {font-size:11px;} }
 </style>
 </head>
@@ -54,13 +59,14 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
     <path fill="#202b45" d="M0 510 L95 575 L180 450 L275 585 L365 495 L470 610 L565 455 L665 570 L750 505 L800 545 V900 H0Z"/>
     <path fill="#0b1427" d="M0 665 L100 705 L190 635 L285 740 L390 660 L475 745 L565 625 L670 720 L765 650 L800 670 V900 H0Z"/>
   </svg>
-  <div class="topline"><div class="brand">LIVE <span>//</span> EARTH</div><div class="pill">FULL-SCREEN TEST V6</div></div>
+  <div class="topline"><div class="brand">LIVE <span>//</span> EARTH</div><div class="pill">LAYOUT COMPARISON TEST V7</div></div>
   <div class="probe">
-    <strong>VIEWPORT HEIGHT + MATCHED BACKGROUND BLEED TEST · ORIGINAL META ENABLED</strong>
+    <strong>VIEWPORT + SCROLLABLE ROOT TEST · ORIGINAL META ENABLED</strong>
     <div id="readings">Measuring viewport…</div>
     <div class="controls">
       <button id="dvh-toggle" type="button" aria-pressed="false">STAGE HEIGHT: 100%</button>
       <button id="paint-toggle" type="button" aria-pressed="false">MATCH SKY BACKGROUND: OFF</button>
+      <button id="flow-toggle" type="button" aria-pressed="false">SCROLLABLE ROOT LAYOUT: OFF</button>
     </div>
   </div>
   <div class="nav" aria-label="Illustrative five-orb layout">
@@ -70,7 +76,7 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
     <div class="item"><div class="orb"><b>⌖</b></div><span>LOCATION</span></div>
     <div class="item"><div class="orb"><b>▱</b></div><span>STACKS</span></div>
   </div>
-  <div class="footnote">TEST ONLY · NOT THE LIVE APP · NO LOCATION OR STORAGE ACCESS · MATCHED BACKGROUND EXPERIMENT</div>
+  <div class="footnote">TEST ONLY · NOT THE LIVE APP · NO LOCATION OR STORAGE ACCESS · SCROLLABLE ROOT / VIEWPORT COMPARISON</div>
 </div>
 <div id="dvh-probe" aria-hidden="true"></div>
 <script>
@@ -80,8 +86,10 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
   const dvhProbe = document.getElementById('dvh-probe');
   const dvhToggle = document.getElementById('dvh-toggle');
   const paintToggle = document.getElementById('paint-toggle');
+  const flowToggle = document.getElementById('flow-toggle');
   let dvhMode = false;
   let rootPaintProbe = false;
+  let flowMode = false;
   const skyGradient = 'linear-gradient(180deg,#111b39 0%,#32243e 23%,#a35a65 43%,#f4a14c 57%,#ef792e 66%,#5d334f 78%,#10182d 91%,#050813 100%)';
   let recoveryTimers = [];
   let recoveryLabel = 'initial measurement';
@@ -101,6 +109,7 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
     const stageRect = stage.getBoundingClientRect();
     const screenH = window.screen?.height ?? null;
     const gap = screenH === null ? null : Math.max(0, screenH - window.innerHeight);
+    if (gap !== null) root.style.setProperty('--estimated-screen-gap', `${gap}px`);
     const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
     output.textContent = [
       `screen: ${screenH ?? '—'}px high · innerHeight: ${window.innerHeight}px · estimated gap: ${gap === null ? '—' : px(gap)}`,
@@ -108,7 +117,8 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
       `documentElement: ${root.clientWidth} × ${root.clientHeight}px · stage: ${px(stageRect.width)} × ${px(stageRect.height)}`,
       `100dvh probe: ${px(dvhProbe.getBoundingClientRect().height)} · safe areas top/bottom: ${px(top)} / ${px(bottom)}`,
       `DPR: ${window.devicePixelRatio} · standalone: ${standalone ? 'yes' : 'no'}`,
-      `stage mode: ${dvhMode ? '100dvh' : '100%'} · matched background bleed: ${rootPaintProbe ? 'ON' : 'OFF'} · recovery: ${recoveryLabel} (${lastEvent})`
+      `stage mode: ${dvhMode ? '100dvh' : '100%'} · matched background: ${rootPaintProbe ? 'ON' : 'OFF'}`,
+      `scrollable root layout: ${flowMode ? 'ON' : 'OFF'} · recovery: ${recoveryLabel} (${lastEvent})`
     ].join('\n');
   }
   function scheduleSync(eventName) {
@@ -134,6 +144,7 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
   dvhToggle.addEventListener('click', () => {
     dvhMode = !dvhMode;
     stage.style.height = dvhMode ? '100dvh' : '100%';
+    stage.style.setProperty('--test-flow-stage-height', dvhMode ? '100dvh' : '100%');
     stage.style.bottom = dvhMode ? 'auto' : '0';
     dvhToggle.setAttribute('aria-pressed', String(dvhMode));
     dvhToggle.textContent = `STAGE HEIGHT: ${dvhMode ? '100dvh' : '100%'}`;
@@ -148,6 +159,15 @@ body { position:fixed; inset:0; padding:0; background:#050813; }
     paintToggle.setAttribute('aria-pressed', String(rootPaintProbe));
     paintToggle.textContent = `MATCH SKY BACKGROUND: ${rootPaintProbe ? 'ON' : 'OFF'}`;
     recoveryLabel = 'manual matched-background test';
+    update();
+  });
+  flowToggle.addEventListener('click', () => {
+    flowMode = !flowMode;
+    document.documentElement.classList.toggle('github-flow', flowMode);
+    flowToggle.setAttribute('aria-pressed', String(flowMode));
+    flowToggle.textContent = `SCROLLABLE ROOT LAYOUT: ${flowMode ? 'ON' : 'OFF'}`;
+    lastEvent = 'layout-mode tap';
+    recoveryLabel = 'scrollable root comparison';
     update();
   });
   update();
